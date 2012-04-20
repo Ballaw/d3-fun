@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+ <head>
+   <title>Movey Lines</title>
+   <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?2.5.0"></script>
+   <script type="text/javascript" src="../js/lib.js"></script>
+   <style type="text/css">
+		path {
+			stroke: red;
+			stroke-width: 2;
+			fill: none;
+		}
+		 
+		line {
+			stroke: black;
+		}
+		 
+		text {
+			font-family: Arial;
+			font-size: 9pt;
+		}
+   </style>
+ </head>
+ <body>
+   <script type="text/javascript">
+   
+    var main = d3.select('body')
+		.append('svg')
+		.attr('width', 1000)
+		.attr('height', 1000)
+		.append('g')
+		
+	var line = d3.svg.line()
+		.interpolate('basis')
+	
+	lineD = [];
+	for( var i = 0; i < 10; i++ ) {
+		lineD.push( [rand(1000), rand(1000)] );
+	}
+	
+	main.selectAll('path').data([0])
+		.enter().append('svg:path')
+		.attr('d', function(d) { return line(lineD); } );
+		
+	setInterval( function() {
+		lineD.shift()
+		lineD.push( [rand(1000), rand(1000)] );
+		redraw();
+	}, 500);
+	
+	function redraw() {
+		main.transition().duration(500).ease('circle   ')
+			.selectAll('path').attr('d', function(d) {
+			return line(lineD); 
+		});		
+	}
+	
+	/*
+	d3.timer ( redraw );
+	
+	function redraw() {
+		lineD.shift()
+		lineD.push( [rand(1000), rand(1000)] );
+		main.transition().duration(50).ease('circle   ')
+			.selectAll('path').attr('d', function(d) {
+			return line(lineD); 
+		});		
+	}
+	*/
+
+/*var w = 960,
+    h = 2200;
+
+var cluster = d3.layout.cluster()
+    .size([h, w - 160]);
+
+var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
+
+var vis = d3.select("#chart").append("svg")
+    .attr("width", w)
+    .attr("height", h)
+  .append("g")
+    .attr("transform", "translate(40, 0)");
+
+	var nodes = []
+	for( var i = 0; i < 10; i++ ) {
+		nodes.push( {x: i*10, y: i*5  } );
+	}
+	
+  var nodes = cluster.nodes();
+
+  var link = vis.selectAll("path.link")
+      .data(cluster.links(nodes))
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", diagonal);*/
+  
+    /*d3.select('body').append('svg')
+		.selectAll('rect')
+		.data([1])
+		.enter().append('rect')
+		.attr('x',100).attr('y', 100)
+		.attr('width',100).attr('height',100)
+		.on('click', function(d,i) { console.log(d3.event); d3.select(this).attr('x',150) })
+		.on('drag', function(d,i) { console.log(d3.event) } )*/
+/*
+    var drag = d3.behavior.drag()
+        .on("drag", function(d,i) {
+            d.x += d3.event.dx
+            d.y += d3.event.dy
+            d3.select(this).attr("transform", function(d,i){
+                return "translate(" + [ d.x,d.y ] + ")"
+            })
+        });
+		
+	var dragsvg = d3.behavior.drag()
+        .on("drag", function(d,i) {
+            d.x += d3.event.dx
+            d.y += d3.event.dy
+            d3.select(this).attr("transform", function(d,i){
+                return "translate(" + [ d.x,d.y ] + ")"
+            })
+        });
+
+	svg=d3.select("body")
+    .append("svg:svg")
+    .attr("height","100%")
+    .attr("width","100%")
+    .attr("viewBox","0 0 50 50");
+
+// define an arbitrary initial dataset
+dataset=[{id:1,x:10,y:10}, 
+        {id:23,x:20,y:20}, 
+        {id:44,x:30,y:30}, 
+        {id:13,x:40,y:40}];
+        
+
+// This helper function defines the initial shape of any new datapoints
+function circle_factory(selection) {
+    selection.attr("class","series")
+        .attr("cx",function(d) {return d.x})
+        .attr("cy",function(d) {return d.y})
+        .attr("ObjectID",function(d) {return d.id;})  // for easy debugging/monitoring
+        .attr("r",5)
+        .style("fill","blue");
+}
+
+
+// enter() passes on all data not reflected already (by key) in the selection
+// here all data points are passed on, and we append a circle for each
+c=svg.selectAll(".series").data(dataset)
+    .enter().append("svg:circle").call(circle_factory); 
+        
+// Subsequently the y value of #44 changes to 10
+//   notice we only need to supply the y value and the id
+c.data([{id:44,y:10}],function(d) {return d.id;})
+    .transition().delay(500).duration(1000).style("fill","red").style("fill","red") 
+    .attr("cy",function(d) {return d.y;});
+
+// Both x & y of #23 change
+c.data( [ {id:23,x:10,y:40} ], function(d) {return d.id;})
+    .transition().delay(2000).duration(1000).style("fill","yellow")
+    .style("fill","yellow")
+    .attr("cy",function(d) {return d.y;})
+    .attr("cx",function(d) {return d.x;});
+    
+// Now remove #13 by supplying just the key
+c.data( [ {id:13} ], function(d) {return d.id;})
+    .attr("opacity",1).transition().delay(3500).duration(1000).attr("opacity",0)
+    .remove();
+    
+// finally we go back to initial data without #23
+
+function get_back() {
+    dataset = [dataset[0],dataset[2],dataset[3]];
+    c=c.data(dataset,function(d) {return d.key;});
+    c.exit().remove();        // remove any existing objects not in the dataset
+    c.call(circle_factory)    // move existing matching object to data specs
+    c.enter().append("svg:circle").call(circle_factory);  // Finally add the non-existing objects
+    
+}
+
+setTimeout(get_back,5000)   //  create any missing circles (from id)*/
+   /*var a = d3.select('#a');
+   var p = a.selectAll('p').data([1,2,1,4,5]).text(String);
+   
+  // p.enter().append('p').text(String);
+   p.enter().append("p")
+      .text(String);*/
+	//WORKING  
+	/*svgD = [{'a':1} ,{'a':2},{'a':3}] 
+	  
+	var svg = a.selectAll('svg').data(svgD);
+	
+	svg.enter().append('svg');
+	
+	var g = svg.append('g').data([3,4,5]).text(function(d) {return d})
+	*/
+	/*svgD = [];
+	textD = [];
+	rectD = [];
+	for (i = 0; i < 2; i++) {
+		textD[i] = {x:i*10,y:i*10};
+		rectD[i] = {x:i*10,y:i*10,width:10,height:10};
+		svgD[i] = {x:i*20, y:i*20, rect: rectD[i], text: textD[i] };
+	}
+	
+	var svg = a.selectAll('svg').data(svgD); //<= only need one svgD
+	
+	svg.enter().append('svg');
+	
+	//var gs = svg.selectAll('g').data(function(d) { return [d.g] } )
+	
+	
+	var gs = svg.append('rect').attr('x', function(d) { return d.rect.x } )
+		.attr('y',function(d) { return d.rect.y })
+		.attr('width',function(d) { return d.rect.width })
+		.attr('height',function(d) { return d.rect.height })
+	*/	
+	/*var gs = svg.selectAll('rect.test').data(function(d) { return [d.rect] })
+	
+		gs.enter().append('rect')
+		.attr('x', function(d) { return d.x } )
+		.attr('y',function(d) { return d.y })
+		.attr('width',function(d) { return d.width })
+		.attr('height',function(d) { return d.height })
+	
+	//var newSvg = a.append('svg').data(svgD).attr('x',100)
+	
+w = 100, h = 99, width = 98, height = 97;	
+var svg = d3.select("body").append("svg").data([1,2,3])
+    .attr("width", w)
+    .attr("height", h)
+
+var newg = svg.append("g")
+      .data([{x: 0, y: 0}])
+	  
+	
+var text = newg.append("text").text('sdfsdf')
+	.attr('x',10)
+	.attr('y',10)
+	.style('font-family','Verdana')
+	.style('stroke','blue')
+	.style('fill','blue')
+var circ = newg.append('circle').data([{cx:0,cy:0,r:20}])
+	.attr('cx',function(d) {return d.cx})
+	.attr('cx',function(d) {return d.cy})
+	.attr('r',function(d) {return d.r})*/
+
+	//var svg = a.selectAll('svg').data(svgD);
+	
+	//svg.enter().append('svg');
+	
+	//var g = svg.selectAll('g')
+	
+	//g.enter().append('g').data([3,4,5]).text((function(d) {return d}))
+	
+   </script>
+    <!--<svg x="150">
+    <g transform="rotate(45 50 50)">
+        <line x1="10" y1="10" x2="85" y2="10"
+            style="stroke: #006600;"/>
+
+        <rect x="10" y="20" height="50" width="75"
+            style="stroke: #006600; fill: #006600"/>
+
+        <text x="10" y="90" style="stroke: #660000; fill: #660000">
+          Text grouped with shapes</text>
+
+    </g>
+	<svg x="100">
+		<g>
+        <line x1="10" y1="10" x2="85" y2="10"
+            style="stroke: #006600;"/>
+
+        <rect x="10" y="20" height="50" width="75"
+            style="stroke: #006600; fill: #006600"/>
+
+        <text x="10" y="90" style="stroke: #660000; fill: #660000">
+          Text grouped with shapes</text>
+		</g>
+    </svg>
+  </svg>  
+  <g transform="rotate(45 50 50)">
+    
+  </g>-->
+ </body>
+</html>

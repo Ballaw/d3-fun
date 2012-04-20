@@ -1,0 +1,111 @@
+<html>
+<head>
+<script type="text/javascript" src="http://mbostock.github.com/d3/d3.js"></script>
+</head>
+<body>
+<div id="a"></div>
+<svg></svg>
+<script>
+	function rand(max) {
+		return Math.random() * max;
+	}
+	
+	function randNeg(max) {
+		var ret, r = Math.random();
+		r < 0.5 ? sign = -1 : sign = 1;
+		return rand(max) * sign;
+	}
+
+	var del = 1000;
+	dataSize = 200;
+	data = []
+	var clr = [];
+	for (i = 0; i < dataSize; i++) {
+		data.push(rand(1000));
+		clr.push(d3.rgb(rand(255),rand(255),rand(255)));
+	}
+
+	var svg = d3.select('svg');
+	
+	rects = svg.selectAll('rect').data(data);
+	
+	rects
+		
+		.enter().append('svg:rect')
+			.attr('x', function(d,i) { return i* 10 })
+			.attr('y', function(d,i) { return d })
+			.attr('width', 3)
+			.attr('height', 3)
+			.style('fill', function(d,i) { return clr[i] } )
+			.transition()
+			.duration(del)
+			.attr('y', function(d,i) { return d + randNeg(500) })
+			.each('end', stewAnim);
+	
+	function stewAnim() {
+		d3.select(this)
+			.transition()
+			.duration(600)
+			.attr('y', function(d,i) { return d + randNeg(500) })
+			.each('end', stewAnim);		
+	}
+	
+	circs = svg.selectAll('circle').data(data)
+	
+	circs
+		.enter().append('svg:circle')
+		.attr('r',3)
+		.attr('cx',function(d,i) { return d + randNeg(500) })
+		.attr('cy',function(d,i) { return d + randNeg(500) })
+		.style('fill', function(d,i) {return clr[i] })
+		.transition()
+		.duration(2*del)
+		.attr('cx', function(d,i) { return d + randNeg(500) })
+		.each('end', enlargeAnim)
+		
+		var cnt = 0;
+		
+		function enlargeAnim() {
+			d3.select(this).transition()
+				.duration(500)
+				.attr('r',30)
+				.attr('cx', function(d) { return d - cnt; })
+				.attr('cy', function(d) { return d - cnt; })
+				.each('end',denlargeAnim);
+				
+				cnt += 1;
+		};
+		
+		function denlargeAnim() {
+			d3.select(this).transition()
+				.duration(500)
+				.attr('r',3)
+				.each('end',enlargeAnim);
+		};
+
+/*	for( i = 0; i < 100; i++) {
+		rects
+			.transition()
+			.delay(i*del)
+			.duration(del)
+			.attr('y', function(d,i) { return d + randNeg(500) })
+		circs
+			.transition()
+			.delay(i*del)
+			.duration(2*del)
+			.attr('cx', function(d,i) { return d + randNeg(500) })
+	}
+	
+
+    svg.append("circle")
+        .style("stroke", "gray")
+        .style("fill", "white")
+        .attr("r", 40)
+        .attr("cx", function(d,i) { return (i+1)*150} )
+        .attr("cy", 50)
+        .on("mouseover", function(){d3.select(this).style("fill", "aliceblue");})
+        .on("mouseout", function(){d3.select(this).style("fill", "white");});
+*/		
+</script>
+</body>
+</html>

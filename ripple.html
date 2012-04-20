@@ -1,0 +1,185 @@
+<html>
+<head>
+<style>
+body, html {
+	padding: 0;
+	margin: 0;
+}
+
+#wrap {
+	width: 960px;
+	margin: auto;
+}
+
+#middle {	
+	background: #222;
+}
+
+#middle2 {	
+	background: #abc;
+}
+
+#middle3 {	
+	background: #cba;
+}
+
+circle [
+	stroke-width: 1.5px;
+}
+</style>
+<script type="text/javascript" src="http://mbostock.github.com/d3/d3.js"></script>
+<script type="text/javascript" src="../js/lib.js"></script>
+</head>
+<body>
+<div id="wrap">
+	<div id="middle"></div>
+	<div id="middle2"></div>
+	<div id="middle3"></div>
+</div>
+<script>
+var i = 0,
+	h = 400;
+	clrs = d3.scale.category20c();
+
+var svg = d3.select('#middle').append('svg:svg')
+	.style('height', h)
+	.style('pointer-events', 'all')
+	.on('mousemove', particle);
+	
+var svg2 = d3.select('#middle2').append('svg:svg')
+	.style('height', h)
+	.style('pointer-events', 'all')
+	.on('mousemove', sheet)
+	
+function particle() {
+	var m = d3.svg.mouse(this);
+	
+	svg.append('svg:circle')
+		.attr('cx', m[0])
+		.attr('cy', m[1])
+		.attr('r', 1e-6)
+		.style('stroke', clrs(i++))
+		.style('stroke-opacity', 1)
+		.transition()
+		.duration(2000)
+		.ease(Math.sqrt)
+		.attr('r', 100)
+		.style('stroke-opacity', 1e-6)
+		.style('fill', 'none')
+		//.remove();
+}
+
+function sheet() {
+	var m = d3.svg.mouse(this);
+	var s = 3;
+	
+	svg2.append('svg:rect')
+		.attr('x', m[0])
+		.attr('y', m[1])
+		.attr('width', s)
+		.attr('height', s)
+		.style('fill', clrs(i++))
+		.style('stroke', clrs(i++))
+		.style('stroke-width', 1)
+		.style('fill-opacity', 1e-6)
+	.transition().duration(2000)
+		.ease(Math.sqrt)
+		.attr('x', m[0]+50)
+		.attr('width', 100)
+		.style('fill-opacity', 1)
+		.remove();
+}
+/*
+	var del = 1000;
+	dataSize = 200;
+	data = []
+	var clr = [];
+	for (i = 0; i < dataSize; i++) {
+		data.push(rand(1000));
+		clr.push(d3.rgb(rand(255),rand(255),rand(255)));
+	}
+
+	var svg = d3.select('svg');
+	
+	rects = svg.selectAll('rect').data(data);
+	
+	rects
+		
+		.enter().append('svg:rect')
+			.attr('x', function(d,i) { return i* 10 })
+			.attr('y', function(d,i) { return d })
+			.attr('width', 3)
+			.attr('height', 3)
+			.style('fill', function(d,i) { return clr[i] } )
+			.transition()
+			.duration(del)
+			.attr('y', function(d,i) { return d + randNeg(500) })
+			.each('end', stewAnim);
+	
+	function stewAnim() {
+		d3.select(this)
+			.transition()
+			.duration(600)
+			.attr('y', function(d,i) { return d + randNeg(500) })
+			.each('end', stewAnim);		
+	}
+	
+	circs = svg.selectAll('circle').data(data)
+	
+	circs
+		.enter().append('svg:circle')
+		.attr('r',3)
+		.attr('cx',function(d,i) { return d + randNeg(500) })
+		.attr('cy',function(d,i) { return d + randNeg(500) })
+		.style('fill', function(d,i) {return clr[i] })
+		.transition()
+		.duration(2*del)
+		.attr('cx', function(d,i) { return d + randNeg(500) })
+		.each('end', enlargeAnim)
+		
+		var cnt = 0;
+		
+		function enlargeAnim() {
+			d3.select(this).transition()
+				.duration(500)
+				.attr('r',30)
+				.attr('cx', function(d) { return d - cnt; })
+				.attr('cy', function(d) { return d - cnt; })
+				.each('end',denlargeAnim);
+				
+				cnt += 1;
+		};
+		
+		function denlargeAnim() {
+			d3.select(this).transition()
+				.duration(500)
+				.attr('r',3)
+				.each('end',enlargeAnim);
+		};
+
+	for( i = 0; i < 100; i++) {
+		rects
+			.transition()
+			.delay(i*del)
+			.duration(del)
+			.attr('y', function(d,i) { return d + randNeg(500) })
+		circs
+			.transition()
+			.delay(i*del)
+			.duration(2*del)
+			.attr('cx', function(d,i) { return d + randNeg(500) })
+	}
+	
+
+    svg.append("circle")
+        .style("stroke", "gray")
+        .style("fill", "white")
+        .attr("r", 40)
+        .attr("cx", function(d,i) { return (i+1)*150} )
+        .attr("cy", 50)
+        .on("mouseover", function(){d3.select(this).style("fill", "aliceblue");})
+        .on("mouseout", function(){d3.select(this).style("fill", "white");});
+*/		
+</script>
+</body>
+</html>
